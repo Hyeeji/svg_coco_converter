@@ -9,9 +9,16 @@ class svgToimage() :
 
     def svgConvert(self):
         svg = svg2rlg(path=self.path)
+
         renderPM.drawToFile(svg, 'test.jpg', fmt='JPG')
 
 
 if __name__ == '__main__':
-   path = input()
-   converter = svgToimage(path=path)
+    inputPath = input()
+    inputPath = inputPath.replace('\\', '/')
+
+    converter = svgToimage(path=inputPath)
+    converter.svgConvert()
+    print(inputPath)
+    #svg = svg2rlg(inputPath)
+    #renderPM.drawToFile(svg, 'test.jpg', fmt='JPG')
