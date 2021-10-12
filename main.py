@@ -1,4 +1,4 @@
-
+import pyvips
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 
@@ -8,9 +8,8 @@ class svgToimage() :
         self.path = path
 
     def svgConvert(self):
-        svg = svg2rlg(path=self.path)
-
-        renderPM.drawToFile(svg, 'test.jpg', fmt='JPG')
+        image = pyvips.Image.new_from_file(self.path, dpi=300)
+        image.write_to_file("test.png") # fill none으로 되면 배경이 transparency.
 
 
 if __name__ == '__main__':
@@ -19,6 +18,3 @@ if __name__ == '__main__':
 
     converter = svgToimage(path=inputPath)
     converter.svgConvert()
-    print(inputPath)
-    #svg = svg2rlg(inputPath)
-    #renderPM.drawToFile(svg, 'test.jpg', fmt='JPG')
