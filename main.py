@@ -13,8 +13,7 @@ class svgToimage() :
 
 
 if __name__ == '__main__':
-    inputPath = input()
-    inputPath = inputPath.replace('\\', '/')
+    inputPath = './test_files/0.svg'
 
     converter = svgToimage(path=inputPath)
     converter.svgConvert()
