@@ -6,7 +6,9 @@ from svgelements import *
 from PIL import Image
 import matplotlib.pyplot as plt
 
-svg_file = './test_files/0.svg'
+import svgelements_test
+
+svg_file = './test_files/93.svg'
 
 def bezierCurve(points):
     p1 = points[0]
@@ -20,6 +22,7 @@ def bezierCurve(points):
         plt.scatter(point.x, point.y, s=1, color=color)
 
     #plt.show()
+
 
 def pathLine(point):
     x1 = lastpoint.x
@@ -79,11 +82,21 @@ def simpleLine(points):
             plt.scatter(x1, y, s=1, color=color)
         #plt.show()
 
+def circle(tag):
+
+    numlist = numpy.arange(0, 360, 36)
+
+    for theta in numlist:
+        x = tag.cx + tag.rx*numpy.cos(numpy.radians(theta))
+        y = tag.cy + tag.ry*numpy.sin(numpy.radians(theta))
+        plt.scatter(x, y, s=1, color=color)
+
 def get_data(tag):
     pathDatas = []
 
     if isinstance(tag, Path):
         data = tag.d()
+        #print(data)
         global idx
         global pidx
         global lastpoint
@@ -95,7 +108,7 @@ def get_data(tag):
 
         for pathData in data:
             if pathData == 'M' or pathData == 'c' or pathData == 'C' or pathData == 's' or pathData == 'l' or \
-                    pathData == 'z':
+                    pathData == 'L' or pathData == 'z' or pathData == 'h' or pathData == 'H' or pathData == 'S':
                 pathDatas.append(pathData)
 
         for point in tag.as_points():
@@ -116,7 +129,7 @@ def get_data(tag):
                     isLastpoint = True
                     secondControlPoint = points[1]
                 pidx += 1
-            elif pathDatas[idx] == 's':
+            elif pathDatas[idx] == 's' or pathDatas[idx] == 'S':
                 if pidx == 0:
                     points.append(secondControlPoint)
                 elif pidx == 1:
@@ -125,7 +138,11 @@ def get_data(tag):
                     points.append(point)
                     bezierCurve(points=points)
                     isLastpoint = True
-            elif pathDatas[idx] == 'l':
+            elif pathDatas[idx] == 'l' or pathDatas[idx] == 'L':
+                pathLine(point)
+                isLastpoint = True
+
+            elif pathDatas[idx] == 'h' or pathDatas[idx] == 'H':
                 pathLine(point)
                 isLastpoint = True
     if isinstance(tag, SimpleLine):
@@ -137,6 +154,9 @@ def get_data(tag):
 
     if isinstance(tag, Polygon):
         polyLine(tag.points)
+
+    if isinstance(tag, Circle):
+        circle(tag)
 
 
 def tag_to_string(tag):
@@ -160,6 +180,9 @@ def tag_to_string(tag):
     elif isinstance(tag, Rect):
         get_data(tag)
         return 'Rect'
+    elif isinstance(tag, Circle):
+        get_data(tag)
+        return 'Circle'
     else:
         return '??'
 
@@ -167,15 +190,21 @@ def tag_traverse(tag, level):
     global colors
     global color
     global coloridx
-    colors = ['#e35f62', '#006400', '#ADFF2F', '#4682B4', '#9932CC', '#A9A9A9', "#2F4F4F", '#FF8C00']
+    global width
+    global height
+
+    colors = ['#e35f62', '#006400', '#ADFF2F', '#4682B4', '#9932CC', '#A9A9A9', "#2F4F4F", '#FF8C00', 'M80K80', 'M80C10'
+              , '000000']
     indent = ''
     for i in range(level):
         indent = indent + '-'
     if level == 2:
         color = colors[coloridx]
         coloridx += 1
-        #plt.gca().invert_yaxis()
-        #plt.show()
+        plt.xlim(0, width)
+        plt.ylim(0, height)
+        plt.gca().invert_yaxis()
+        plt.show()
 
     if tag.id == None:
         tag_name = 'None'
@@ -191,9 +220,16 @@ def tag_traverse(tag, level):
             tag_traverse(t, level+1)
 
 coloridx = 0
+
+width = SVG.parse(svg_file).width
+height = SVG.parse(svg_file).height
+
 for element in SVG.parse(svg_file):
     tag_traverse(element, 0)
 
+
+plt.xlim(0, width)
+plt.ylim(0, height)
 plt.gca().invert_yaxis()
 plt.show()
 

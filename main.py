@@ -1,4 +1,5 @@
 import pyvips
+import os
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 
@@ -13,7 +14,7 @@ class svgToimage() :
 
 
 if __name__ == '__main__':
-    inputPath = './test_files/0.svg'
+    inputPath = './test_files/66.svg'
 
     converter = svgToimage(path=inputPath)
     converter.svgConvert()
