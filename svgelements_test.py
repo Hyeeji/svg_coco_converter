@@ -201,6 +201,7 @@ def tag_traverse(tag, level):
     if level == 2:
         color = colors[coloridx]
         coloridx += 1
+
         plt.xlim(0, width)
         plt.ylim(0, height)
         plt.gca().invert_yaxis()
