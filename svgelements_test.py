@@ -174,8 +174,8 @@ def tag_traverse(tag, level):
     if level == 2:
         color = colors[coloridx]
         coloridx += 1
-        #plt.gca().invert_yaxis()
-        #plt.show()
+        plt.gca().invert_yaxis()
+        plt.show()
 
     if tag.id == None:
         tag_name = 'None'
