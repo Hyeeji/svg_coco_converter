@@ -5,11 +5,13 @@ import matplotlib.pyplot as plt
 from svgelements import *
 import cv2
 import numpy as np
+import alphashape
+import shapely.geometry as geom
 
 from svg_path_to_polygons import svg_path_to_polygons
 
 # svg_file = './test_files/0_Segment/0_open.svg'
-svg_file = './test_files/93.svg'
+svg_file = './test_files/0.svg'
 
 def tag_to_string(tag):
     tag_str = ''
@@ -71,37 +73,61 @@ def tag_traverse(tag, level, polygons):
         for t in tag:
             tag_traverse(t, level+1, polygons)
 
+def xy_to_tuple(x_vals, y_vals):
+    points_2d_tuple = []
+    for x,y in zip(x_vals, y_vals):
+        points_2d_tuple.append((x,y))
+
+    return points_2d_tuple
 
 if __name__ == '__main__':
-    img = cv2.imread('test_files/0.png', cv2.IMREAD_UNCHANGED)
-    cv2.resize(img, dsize=(595,841))
-
     width = SVG.parse(svg_file).width
     height = SVG.parse(svg_file).height
 
     for element in SVG.parse(svg_file):
         polygons = []
         tag_traverse(element, 0, polygons)
-        # plt.close()
-        # plt.imshow(img)
-        plt.xlim(0, width)
-        plt.ylim(0, height)
-        plt.gca().invert_yaxis()
+
+        x_vals = []
+        y_vals = []
+
         for polygon in polygons:
             if len(polygon) is not 0:
-                x_vals = []
-                y_vals = []
+
                 for segment in polygon:
                     for point in segment:
                         x_vals.append(point.x)
                         y_vals.append(point.y)
 
-                # x_vals.append(x_vals[0]) # force closing
-                # y_vals.append(y_vals[0])  # force closing
+                x_vals.append(x_vals[0]) # force closing
+                y_vals.append(y_vals[0])  # force closing
 
-                plt.plot(x_vals, y_vals)
-
+        plt.scatter(x_vals, y_vals)
         plt.show()
+
+
+        points_2d_tuple = xy_to_tuple(x_vals, y_vals)
+        alpha_shape = alphashape.alphashape(points_2d_tuple, 0.005)
+
+        if isinstance(alpha_shape,geom.Polygon):
+            exterior_x_pts = alpha_shape.exterior.xy[0]
+            exterior_y_pts = alpha_shape.exterior.xy[1]
+
+            plt.plot(exterior_x_pts, exterior_y_pts)
+        elif isinstance(alpha_shape, geom.MultiPolygon):
+            for alpha_poly in alpha_shape:
+                exterior_x_pts = alpha_poly.exterior.xy[0]
+                exterior_y_pts = alpha_poly.exterior.xy[1]
+
+                plt.plot(exterior_x_pts, exterior_y_pts)
+
+        plt.xlim(0, width)
+        plt.ylim(0, height)
+        plt.gca().invert_yaxis()
+        plt.show()
+
+
+
 
 
 
