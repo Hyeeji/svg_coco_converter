@@ -125,10 +125,3 @@ if __name__ == '__main__':
         plt.ylim(0, height)
         plt.gca().invert_yaxis()
         plt.show()
-
-
-
-
-
-
-
