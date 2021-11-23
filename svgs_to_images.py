@@ -29,7 +29,7 @@ class svgToImage() :
                         os.makedirs(nextDestPath)
                     self.convertFolder(nextFilePath, nextDestPath)
                 except OSError:
-                    print ('Error: Creating directory. ' +  nextDestPath)
+                    print ('Error: Creating directory ' + nextDestPath + '.')
 
             elif os.path.isfile(nextFilePath):
                 tmpList = nextFile.split('.')
@@ -42,9 +42,11 @@ class svgToImage() :
                     print(nextFile + "is not .svg file.")
                     continue
 
+# argv = [input_path, output_path, dpi]
 if __name__ == '__main__':
     inputPath = sys.argv[1]
-    inputDpi = int(sys.argv[2])
+    outputPath = sys.argv[2]
+    inputDpi = int(sys.argv[3])
 
     converter = svgToImage(inputPath, inputDpi)
-    converter.convertFolder(converter.path, "newfolder")
+    converter.convertFolder(converter.path, outputPath)
