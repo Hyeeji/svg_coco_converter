@@ -1,7 +1,7 @@
 import pyvips
 import os
 import sys
-from svgs_to_image import *
+from svgs_to_images import *
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 
