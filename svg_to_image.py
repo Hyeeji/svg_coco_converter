@@ -1,5 +1,6 @@
 import pyvips
 import os
+import sys
 import shutil
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
@@ -42,5 +43,8 @@ class svgToImage() :
                     continue
 
 if __name__ == '__main__':
-    converter = svgToImage("./test_folder", 300)
+    inputPath = sys.argv[1]
+    inputDpi = int(sys.argv[2])
+
+    converter = svgToImage(inputPath, inputDpi)
     converter.convertFolder(converter.path, "newfolder")
