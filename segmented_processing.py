@@ -6,6 +6,8 @@ import cairosvg
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import svgelements_test
+import to_cocoformat
 
 def convert_svg_to_png(svg_path):
     # Convert each sub-SVG into image
@@ -61,6 +63,9 @@ def process_img(img_path, width_stride):
     for point in tops:
         x_vals.append(point[0])
         y_vals.append(point[1])
+        segementation_data.append(point[0],point[1])
+
+    make_annotation_data()
 
     plt.xlim(0, width)
     plt.ylim(0, height)
@@ -71,11 +76,21 @@ def process_img(img_path, width_stride):
     plt.show()
     plt.clf()
 
+def make_annotation_data():
+    information = svgelements_test.get_information('./test_files/0.svg')
 
+    annotation_data = []
+    annotation_data.append(information[index])
+    annotation_data.append(segementation_data)
+    segementation_data.clear()
+
+    to_cocoformat.write_coco_annotaion(annotation_data)
 
 if __name__ == '__main__':
     segmented_root_path = './segmented_files'
     WIDTH_STRIDE = 1
+    index = 0
+    segementation_data = []
 
     # for each folder that contains sub-SVG,
     for segmented_svg_folder in os.listdir(segmented_root_path):
@@ -91,6 +106,7 @@ if __name__ == '__main__':
 
                 # 2) process image and generate polygon
                 process_img(out_img_file, WIDTH_STRIDE)
+                index += 1
 
 
 

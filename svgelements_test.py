@@ -51,7 +51,36 @@ def tag_get_polygons(tag):
             polygon.append(Point(point.x, point.y))
         poly_points.append(polygon)
 
+
     return poly_points
+
+def get_information(source):
+    information = []
+
+    for element in SVG.parse(source):
+        traverse_information(element, 0, information)
+
+    for inform in information:
+        print(inform[0], inform[1])
+
+    return information
+
+def traverse_information(tag, level, information):
+
+    if tag.id == None:
+        tag_name = 'None'
+    else:
+        tag_name = tag.id
+
+    tag_str = tag_to_string(tag)
+    if level == 2:
+        information.append((tag_name, tag_str))
+
+    if isinstance(tag, Group) == False:
+        return None
+    else:
+        for t in tag:
+            traverse_information(t, level + 1, information)
 
 def tag_traverse(tag, level, polygons):
     indent = ''
@@ -81,11 +110,13 @@ def xy_to_tuple(x_vals, y_vals):
     return points_2d_tuple
 
 if __name__ == '__main__':
+    #get_information(svg_file)
     width = SVG.parse(svg_file).width
     height = SVG.parse(svg_file).height
 
     for element in SVG.parse(svg_file):
         polygons = []
+        tags = []
         tag_traverse(element, 0, polygons)
 
         x_vals = []
