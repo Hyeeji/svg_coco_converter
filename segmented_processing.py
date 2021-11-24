@@ -63,7 +63,7 @@ def process_img(img_path, width_stride):
     for point in tops:
         x_vals.append(point[0])
         y_vals.append(point[1])
-        segementation_data.append(point[0],point[1])
+        segementation_data.append(point)
 
     make_annotation_data()
 
@@ -77,20 +77,20 @@ def process_img(img_path, width_stride):
     plt.clf()
 
 def make_annotation_data():
-    information = svgelements_test.get_information('./test_files/0.svg')
-
     annotation_data = []
     annotation_data.append(information[index])
     annotation_data.append(segementation_data)
+    to_cocoformat.write_coco_annotaion(annotation_data)
     segementation_data.clear()
 
-    to_cocoformat.write_coco_annotaion(annotation_data)
+
 
 if __name__ == '__main__':
     segmented_root_path = './segmented_files'
     WIDTH_STRIDE = 1
     index = 0
     segementation_data = []
+    information = svgelements_test.get_information('./test_files/0.svg')
 
     # for each folder that contains sub-SVG,
     for segmented_svg_folder in os.listdir(segmented_root_path):

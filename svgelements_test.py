@@ -60,9 +60,6 @@ def get_information(source):
     for element in SVG.parse(source):
         traverse_information(element, 0, information)
 
-    for inform in information:
-        print(inform[0], inform[1])
-
     return information
 
 def traverse_information(tag, level, information):

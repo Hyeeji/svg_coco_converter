@@ -14,7 +14,7 @@ def write_coco_annotaion(annotation_data):
     data['annotations'].append({'name' : annotation_data[0][0],
                                  'tag' : annotation_data[0][1],
                                  'segementation' : annotation_data[1]})
-    print(annotation_data[0][0], annotation_data[0][1], annotation_data[1])
+    print(annotation_data[0], annotation_data[1])
 
 
 
