@@ -13,7 +13,7 @@ class svgToImage() :
 
     def svgConvert(self, src, dest):
         image = pyvips.Image.new_from_file(src, dpi = self.dpi)
-        print("Writing {0}...".format(dest + src))
+        print("Converting {0}".format(src) + " in " + dest)
         image.write_to_file(dest) # fill none으로 되면 배경이 transparency.
 
     def convertFolder(self, curPath, destPath):
