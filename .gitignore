@@ -134,3 +134,6 @@ dmypy.json
 # test_folders
 new_folder*
 test_folder
+
+# json_files
+*.json
