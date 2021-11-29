@@ -23,7 +23,7 @@ def convert_svg_to_png(svg_path):
 
     return out_img_filepath
 
-def process_img(img_path, width_stride, segment_names, name_idx):
+def process_img(img_path, width_stride, segment_names, name_idx, category_path):
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED) # Alpha channel read
 
     # Since all meaningful information is colored in black (or whatever), we only care about the pixels which is not transparent
@@ -54,6 +54,9 @@ def process_img(img_path, width_stride, segment_names, name_idx):
     point_num = len(bottoms)
     for i in range(point_num):
         tops.append(bottoms[point_num-i-1])
+    if len(tops) == 0:
+        return
+
     tops.append(tops[0]) # force closing
 
 
@@ -73,10 +76,10 @@ def process_img(img_path, width_stride, segment_names, name_idx):
     ymax = max(y_vals)
 
     bbox_point = [int(xmin), int(ymin), int(xmax), int(ymax)]
-    make_annotation_data(bbox_point, segment_names, name_idx)
+    make_annotation_data(bbox_point, segment_names, name_idx, category_path)
 
 
-def make_annotation_data(bbox_points, segment_names, name_idx):
+def make_annotation_data(bbox_points, segment_names, name_idx, category_path):
     global annotation_data, segmentation_data
     name_count = len(segment_names)
 
@@ -85,7 +88,7 @@ def make_annotation_data(bbox_points, segment_names, name_idx):
     xmax = bbox_points[2]
     ymax = bbox_points[3]
 
-    with open('./json_file/categories.json') as category_json:  # root argument로 받기
+    with open(category_path) as category_json:  # root argument로 받기
         all_category = json.load(category_json)
     category_id = None
 
@@ -105,14 +108,17 @@ def make_annotation_data(bbox_points, segment_names, name_idx):
 
 
 def make_polygon(segment_names):
-    segmented_root_path = 'test_files/segmented_files'
-    WIDTH_STRIDE = 3
-
+    segmented_root_path = 'D:/Test_Models/FAAI/segmented_files'
+    WIDTH_STRIDE = 10
+    #category_path = input("category_path : ")
+    #category_path = os.path.dirname(os.path.realpath(path)) + '/' + 'categories.json'
+    category_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\categories.json'
 
     # for each folder that contains sub-SVG,
     for segmented_svg_folder in os.listdir(segmented_root_path):
         svg_segment_folder = os.path.join(segmented_root_path,segmented_svg_folder)
         name_idx = 0
+
         # for each sub-SVG,
         for segmented_file in os.listdir(svg_segment_folder):
             if os.path.splitext(segmented_file)[1].find(".svg") is not -1:
@@ -120,9 +126,11 @@ def make_polygon(segment_names):
 
                 # 1) convert svg to image
                 out_img_file = convert_svg_to_png(segmented_file_path)
+                print(segmented_file + 'is drawing to png')
 
                 # 2) process image and generate polygon
-                process_img(out_img_file, WIDTH_STRIDE, segment_names, name_idx)
+                process_img(out_img_file, WIDTH_STRIDE, segment_names, name_idx, category_path)
+                print(segmented_file + 'generate polygon')
                 name_idx += 1
                 segmentation_data.clear()
         annotation_json_generator.write_coco_annotaion(annotation_data)

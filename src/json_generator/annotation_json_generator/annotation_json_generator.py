@@ -2,6 +2,7 @@ import json
 from src.json_generator.annotation_json_generator.svg_segmentation import segmentation
 import segemented_processing
 import svg_segmentation
+import cProfile
 
 data = {}
 data['annotations'] = []
@@ -11,7 +12,6 @@ name_idx = 0
 
 def write_coco_annotaion(annotation_data):
     instance_id = 0
-    #print(annotation_data[0][5])
 
     for annotation in annotation_data:
         width = int(annotation[3] - annotation[1])
@@ -32,7 +32,7 @@ def write_coco_annotaion(annotation_data):
 
 
 def save_as_json(data):
-    with open('./json_file/annotation.json', 'w') as json_out:
+    with open('D:/Test_Models/FAAI/test_files/annotation.json', 'w') as json_out:
         json.dump(data, json_out, indent=4)
 
 
