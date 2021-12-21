@@ -45,7 +45,7 @@ def dump_category_result(out_path, entire_category):
 
 if __name__ == "__main__":
     # DATA_ROOT = 'D:/Test_Models/FAAI/Dataset'
-    DATA_ROOT = 'D:/Test_Models/FAAI/test_small'
+    DATA_ROOT = 'D:/Test_Models/FAAI/bottom_test'
     OUT_PATH = '../../../test_files/categories.json'
 
     entire_category = fetch_category(DATA_ROOT)

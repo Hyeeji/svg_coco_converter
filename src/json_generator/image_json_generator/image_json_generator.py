@@ -2,7 +2,7 @@ import os
 from pathlib import WindowsPath
 import sys
 import json
-from typing import OrderedDict
+#from typing import OrderedDict
 from svg_to_image import svg_convert
 from generate_image import generate_single_image_json
 
@@ -11,10 +11,12 @@ class image_json_generator:
         self.dest_root_folder = dest_file
         self.origin_path = root_path + origin_file
         self.dest_path = root_path + dest_file
+
         if not os.path.exists(self.dest_path):
             os.makedirs(self.dest_path)
+
         self.id_counter = 0
-        self.images_json = OrderedDict()
+        self.images_json = {}
         self.images_json['image'] = []
         self.width = width
         self.height = height
@@ -42,7 +44,6 @@ class image_json_generator:
                     next_dest_path += new_file_name
                     svg_convert(next_file_path, next_dest_path, self.width, self.height)
                     self.images_json['image'].append(generate_single_image_json(self.id_counter, self.width, self.height, relative_cur_path + '\\' + new_file_name))
-                    self.id_counter += 1
                 else:
                     print(next_file + " is not .svg file.")
             else:
@@ -58,9 +59,11 @@ class image_json_generator:
         print("Generated " + self.origin_path + "\\image.json successfully.")
 
 if __name__ == "__main__":
-    DATA_ROOT = 'C:\\Users\\tuna1\\Documents\\AIFasion\\'
+    #DATA_ROOT = 'C:\\Users\\tuna1\\Documents\\AIFasion\\'
 
-    if len(sys.argv) != 5 :
+    DATA_ROOT = 'D:/Test_Models/FAAI/'
+
+    if len(sys.argv) != 5:
         print('ex) python image_json_generator.py origin_folder dest_folder 400(width) 300(height)')
     else:
         generator = image_json_generator(DATA_ROOT, sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
