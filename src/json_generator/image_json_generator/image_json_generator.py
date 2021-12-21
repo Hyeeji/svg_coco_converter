@@ -11,6 +11,8 @@ class image_json_generator:
         self.dest_root_folder = dest_file
         self.origin_path = root_path + origin_file
         self.dest_path = root_path + dest_file
+        if not os.path.exists(self.dest_path):
+            os.makedirs(self.dest_path)
         self.id_counter = 0
         self.images_json = OrderedDict()
         self.images_json['image'] = []
