@@ -34,33 +34,9 @@ def change_fill_style(node):
     for subnode in node:
         change_fill_style(subnode)
 
-def get_segmentation_names():
-    DATA_ROOT = 'D:/Test_Models/FAAI/test_small'
-    index = 0
-    # input_path = 'D:/Test_Models/FAAI/test_small'
-    extention = '.svg'
-    segment_names = []
-
-    for full_dir, dirs, files in os.walk(DATA_ROOT):
-        for name in files:
-            if name.endswith((".svg")):
-                file_name = name
-                svg_path = os.path.join(full_dir, file_name)
-                ET.register_namespace('', "http://www.w3.org/2000/svg")  # should add namespace
-                tree = ET.parse(svg_path)
-                root = tree.getroot()
-
-                index += 1
-                if index == 3224 or index == 5209:
-                    index += 1
-
-                for first_lvl in root:
-                    segment_names.append(gather_name(first_lvl))
-
-    return segment_names
 
 def segmentation():
-    DATA_ROOT = 'D:/Test_Models/FAAI/bottom_test'
+    DATA_ROOT = 'D:/Test_Models/FAAI/test'
     index = 0
     #input_path = 'D:/Test_Models/FAAI/test_small'
     output_root = 'D:/Test_Models/FAAI/segmented_files'
@@ -112,6 +88,3 @@ def segmentation():
         # Filename contains layer 1 & 2 & 3 information
                     tree_cpy.write("{0}/{1}_{2}{3}".format(out_folder, file_name, segment_names[i], extention),
                                    encoding="ASCII", xml_declaration=True)
-            index += 1
-            if index == 3224 or index == 5209:
-                index += 1

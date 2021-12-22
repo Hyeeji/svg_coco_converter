@@ -102,13 +102,13 @@ def make_annotation_data(bbox_points, segment_name, category_path, image_path, f
         all_category = json.load(category_json)
     category_id = None
 
-    for filename in all_image['image']:
+    for filename in all_image['images']:
         if filename['file_name'] == file_path:
             image_id = filename['id']
             break
 
     category_name = segment_name
-    for category in all_category:
+    for category in all_category['categories']:
         if category['name'] == category_name:
             category_id = category['id']
             break
@@ -126,7 +126,7 @@ def make_polygon( ):
     WIDTH_STRIDE = 10
     dest_path = 'new_folder\\'
     category_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\categories.json'
-    image_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\image.json'
+    image_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\images.json'
 
     for segmented_file_path in p.glob('**/*.svg'):
         # 1) convert svg to image
@@ -144,18 +144,13 @@ def make_polygon( ):
         segment_names_1 = second[1].split(sep='_', maxsplit=1)
         segment_names_2 = segment_names_1[1].rsplit(sep='.', maxsplit=1)
         segment_name = segment_names_2[0]
-        print(segment_name)
 
         process_img(out_img_file, WIDTH_STRIDE, segment_name, category_path, image_path, file_path)
 
         segmentation_data.clear()
 
-
-
-    print('for end')
-    time_ = time.time()
     annotation_json_generator.write_coco_annotaion(annotation_data)
-    print('annotation_json_generator.write_coco_annotaion', time.time() - time_)
+
 
 
 if __name__ == '__main__':

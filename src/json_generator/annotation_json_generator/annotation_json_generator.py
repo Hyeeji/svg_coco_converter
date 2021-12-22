@@ -34,7 +34,7 @@ def write_coco_annotaion(annotation_data):
 
 
 def save_as_json(data):
-    with open('D:/Test_Models/FAAI/test_files/annotation.json', 'w') as json_out:
+    with open('../../../test_files/annotations.json', 'w') as json_out:
         json.dump(data, json_out, indent=4)
 
 

@@ -3,6 +3,8 @@ import json
 import xml.etree.ElementTree as ET
 from src.json_generator.common.svg_process import gather_name_from_first_level_node
 
+data = {}
+data['categories'] = []
 
 def get_category_names(svg_path):
     tree = ET.parse(svg_path)
@@ -36,16 +38,16 @@ def dump_category_result(out_path, entire_category):
     id = 0
     for cat in entire_category:
         # TODO: add supercategory if required
-        categories.append({'id': id, 'name': cat})
+        data['categories'].append({'id': id, 'name': cat})
         id += 1
 
     with open(out_path, 'w') as json_file:
-        json.dump(categories, json_file, indent=4)
+        json.dump(data, json_file, indent=4)
 
 
 if __name__ == "__main__":
     # DATA_ROOT = 'D:/Test_Models/FAAI/Dataset'
-    DATA_ROOT = 'D:/Test_Models/FAAI/bottom_test'
+    DATA_ROOT = 'D:/Test_Models/FAAI/test'
     OUT_PATH = '../../../test_files/categories.json'
 
     entire_category = fetch_category(DATA_ROOT)
