@@ -130,3 +130,10 @@ dmypy.json
 
 # Pycharm IDE Temp
 .idea/*.*
+
+# test_folders
+new_folder*
+test_folder
+
+# json_files
+*.json
