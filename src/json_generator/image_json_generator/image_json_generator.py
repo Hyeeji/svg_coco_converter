@@ -1,10 +1,11 @@
 import os
-from pathlib import WindowsPath
+from pathlib import Path
 import sys
+import time
+import datetime
 import json
-from typing import OrderedDict
 from svg_to_image import svg_convert
-from generate_image import generate_single_image_json
+from generate_image import generate_sipgle_image_json
 
 class image_json_generator:
     def __init__(self, root_path, origin_file, dest_file, width, height):
@@ -14,7 +15,7 @@ class image_json_generator:
         if not os.path.exists(self.dest_path):
             os.makedirs(self.dest_path)
         self.id_counter = 0
-        self.images_json = OrderedDict()
+        self.images_json = {}
         self.images_json['image'] = []
         self.width = width
         self.height = height
@@ -40,9 +41,14 @@ class image_json_generator:
                 if extension == "svg":
                     new_file_name = next_file.replace('.svg', '.png')
                     next_dest_path += new_file_name
-                    svg_convert(next_file_path, next_dest_path, self.width, self.height)
-                    self.images_json['image'].append(generate_single_image_json(self.id_counter, self.width, self.height, relative_cur_path + '\\' + new_file_name))
-                    self.id_counter += 1
+                    try:
+                        svg_convert(next_file_path, next_dest_path, self.width, self.height)
+                    except TypeError:
+                        os.remove(next_file_path)
+                        print('Deleted broken svg')
+                    else:
+                        self.images_json['image'].append(generate_single_image_json(self.id_counter, self.width, self.height, relative_cur_path + '\\' + new_file_name))
+                        self.id_counter += 1
                 else:
                     print(next_file + " is not .svg file.")
             else:
@@ -60,8 +66,15 @@ class image_json_generator:
 if __name__ == "__main__":
     DATA_ROOT = 'C:\\Users\\tuna1\\Documents\\AIFasion\\'
 
+    start = time.time()
+
     if len(sys.argv) != 5 :
         print('ex) python image_json_generator.py origin_folder dest_folder 400(width) 300(height)')
     else:
         generator = image_json_generator(DATA_ROOT, sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
         generator.generate_image_json()
+    
+    sec = time.time() - start
+    times = str(datetime.timedelta(seconds=sec)).split(".")
+    times = times[0]
+    print("Runtime: ", times)

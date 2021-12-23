@@ -1,6 +1,4 @@
-import os
 import sys
-# from pyvips import Image
 from cairosvg import svg2png
 
 def svg_convert(src, dest, width, height):
@@ -12,3 +10,5 @@ def svg_convert(src, dest, width, height):
     print("Converting {0} into {1}".format(src, dest))
     # image.write_to_file(dest) # fill none으로 되면 배경이 transparency.
 
+if __name__ == "__main__":
+    svg_convert(sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
