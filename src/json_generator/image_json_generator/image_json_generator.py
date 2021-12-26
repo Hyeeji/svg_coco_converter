@@ -1,80 +1,91 @@
-import os
-from pathlib import Path
 import sys
 import time
 import datetime
 import json
-from svg_to_image import svg_convert
-from generate_image import generate_sipgle_image_json
+import time
+import datetime
+from pathlib import Path
+from cairosvg import svg2png
+from tqdm import tqdm
 
 class image_json_generator:
-    def __init__(self, root_path, origin_file, dest_file, width, height):
-        self.dest_root_folder = dest_file
-        self.origin_path = root_path + origin_file
-        self.dest_path = root_path + dest_file
-        if not os.path.exists(self.dest_path):
-            os.makedirs(self.dest_path)
-        self.id_counter = 0
+    def __init__(self, root_path, origin_folder, dest_folder, width, height):
+        self.origin_folder = origin_folder
+        self.dest_folder = dest_folder
+        self.root_path = Path(root_path)
+        self.dest_root_folder = Path(dest_folder).mkdir(exist_ok=True)
+        self.origin_path = self.root_path / Path(origin_folder)
+        self.dest_path = self.root_path / Path(dest_folder)
         self.images_json = {}
         self.images_json['image'] = []
         self.width = width
         self.height = height
 
-    def traversal_and_convert(self, cur_path, relative_cur_path, dest_path):
-        next_file_list = os.listdir(cur_path)
+    def traversal_and_convert(self):
+        id_counter = 0
+        deleted_files = []
+        start = time.time()
 
-        for next_file in next_file_list:
-            next_dest_path = dest_path + '\\'            # 복사 경로상에서 다음 경로
-            next_file_path = cur_path + '\\' + next_file # 원본 경로상에서 파일명까지 포함한 다음 경로
+        print('Gathering all .svg files under "' + self.origin_folder + '" ...')
+        svg_list = list(self.origin_path.glob('**/*.svg'))
 
-            if os.path.isdir(next_file_path):
-                next_dest_path += next_file
-                try:
-                    if not os.path.exists(next_dest_path):
-                        os.makedirs(next_dest_path)
-                    self.traversal_and_convert(next_file_path, relative_cur_path + '\\' + next_file , next_dest_path)
-                except OSError:
-                    print ('Error: Creating directory ' + next_dest_path + '.')
+        print('Total: ' + str(len(svg_list)) + ' files')
 
-            elif os.path.isfile(next_file_path):
-                extension = next_file.split('.')[1]
-                if extension == "svg":
-                    new_file_name = next_file.replace('.svg', '.png')
-                    next_dest_path += new_file_name
-                    try:
-                        svg_convert(next_file_path, next_dest_path, self.width, self.height)
-                    except TypeError:
-                        os.remove(next_file_path)
-                        print('Deleted broken svg')
-                    else:
-                        self.images_json['image'].append(generate_single_image_json(self.id_counter, self.width, self.height, relative_cur_path + '\\' + new_file_name))
-                        self.id_counter += 1
-                else:
-                    print(next_file + " is not .svg file.")
+        for cur_svg in tqdm(svg_list, desc='Progress', mininterval=0.5, unit='image'):
+            #* Generate destination path
+            cur_png_str = str(cur_svg)
+            cur_png_str = cur_png_str.replace(self.origin_folder, self.dest_folder)
+            cur_png = Path(cur_png_str)
+            cur_png = cur_png.with_suffix('.png')
+            cur_png.parent.mkdir(parents=True, exist_ok=True) #? Make directory if destination path doesn't exists
+
+            relative_cur_png = str(Path(cur_png).relative_to(self.root_path))
+
+            #* Convert to png
+            try:
+                svg2png(url=str(cur_svg)
+                        ,write_to=str(cur_png)
+                        ,parent_width=self.width
+                        ,parent_height=self.height)
+            except TypeError:
+                deleted_files.append(str(cur_svg))
+                cur_svg.unlink()  #? Delete src file if it is broken
             else:
-                continue        
+                self.images_json['image'].append(self.generate_single_image_json(id_counter, relative_cur_png))
+                id_counter += 1  
+        
+        #* Print result
+        sec = time.time() - start
+        times = str(datetime.timedelta(seconds=sec)).split(".")
+        times = times[0]
+        print("Runtime: ", times)
+        print('Converted ' + str(id_counter) + ' files.')
+        if deleted_files:
+            print('Deleted ' + str(len(deleted_files)) + ' files.')
+            print(deleted_files)
+
+    def generate_single_image_json(self, file_id, file_name):
+        data = {}
+        data['id'] = file_id
+        data['width'] = self.width
+        data['height'] = self.height
+        data['file_name'] = file_name
+        return data
 
     def dump_image_result(self, out_path):
         with open(out_path + '\\image.json', 'w') as json_file:
             json.dump(self.images_json, json_file, indent=4)
 
     def generate_image_json(self):
-        self.traversal_and_convert(self.origin_path, self.dest_root_folder, self.dest_path)
-        self.dump_image_result(self.origin_path)
-        print("Generated " + self.origin_path + "\\image.json successfully.")
+        self.traversal_and_convert()
+        self.dump_image_result(str(self.origin_path))
+        print("Generated " + str(self.origin_path) + "\\image.json successfully.")
 
 if __name__ == "__main__":
     DATA_ROOT = 'C:\\Users\\tuna1\\Documents\\AIFasion\\'
-
-    start = time.time()
 
     if len(sys.argv) != 5 :
         print('ex) python image_json_generator.py origin_folder dest_folder 400(width) 300(height)')
     else:
         generator = image_json_generator(DATA_ROOT, sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
         generator.generate_image_json()
-    
-    sec = time.time() - start
-    times = str(datetime.timedelta(seconds=sec)).split(".")
-    times = times[0]
-    print("Runtime: ", times)
