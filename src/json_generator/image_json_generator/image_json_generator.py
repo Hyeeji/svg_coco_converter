@@ -2,8 +2,6 @@ import sys
 import time
 import datetime
 import json
-import time
-import datetime
 from pathlib import Path
 from cairosvg import svg2png
 from tqdm import tqdm
