@@ -1,7 +1,7 @@
 import sys
-import json
 import time
 import datetime
+import json
 from pathlib import Path
 from cairosvg import svg2png
 from tqdm import tqdm
@@ -82,12 +82,8 @@ class image_json_generator:
 if __name__ == "__main__":
     DATA_ROOT = 'C:\\Users\\tuna1\\Documents\\AIFasion\\'
 
-    
-
     if len(sys.argv) != 5 :
         print('ex) python image_json_generator.py origin_folder dest_folder 400(width) 300(height)')
     else:
         generator = image_json_generator(DATA_ROOT, sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
         generator.generate_image_json()
-    
-    
