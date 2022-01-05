@@ -1,4 +1,5 @@
 import os
+import sys
 import cairosvg
 import cv2
 import numpy as np
@@ -8,6 +9,8 @@ import copy
 import time
 from pathlib import Path
 import matplotlib.pyplot as plt
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from common.svg_cleaner import correct_id
 
 segmentation_data = []
 annotation_data = []
@@ -107,7 +110,7 @@ def make_annotation_data(bbox_points, segment_name, category_path, image_path, f
             image_id = filename['id']
             break
 
-    category_name = segment_name
+    category_name = correct_id(segment_name)
     for category in all_category['categories']:
         if category['name'] == category_name:
             category_id = category['id']
