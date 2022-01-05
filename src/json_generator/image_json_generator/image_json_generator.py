@@ -43,6 +43,7 @@ class image_json_generator:
                     new_file_name = next_file.replace('.svg', '.png')
                     next_dest_path += new_file_name
                     svg_convert(next_file_path, next_dest_path, self.width, self.height)
+                    self.id_counter += 1
                     self.images_json['images'].append(generate_single_image_json(self.id_counter, self.width, self.height, relative_cur_path + '\\' + new_file_name))
                 else:
                     print(next_file + " is not .svg file.")

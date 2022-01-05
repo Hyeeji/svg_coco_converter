@@ -6,6 +6,7 @@ import annotation_json_generator
 import json
 import copy
 import time
+from tqdm import tqdm
 from pathlib import Path
 import matplotlib.pyplot as plt
 
@@ -20,7 +21,7 @@ def convert_svg_to_png(svg_path):
     segmented_file_path = svg_path
     out_img_filepath = svg_path.replace('.svg', '.png')
     #print("Writing {0}...".format(out_img_filepath))
-    cairosvg.svg2png(url=segmented_file_path, write_to=segmented_file_path.replace('.svg', '.png'))
+    cairosvg.svg2png(url=segmented_file_path, write_to=segmented_file_path.replace('.svg', '.png'), parent_width=512, parent_height=512)
 
     # TODO: Pyvips dll load 문제 있음...
     # image = pyvips.Image.new_from_file(segmented_file_path, dpi=600)
@@ -28,8 +29,9 @@ def convert_svg_to_png(svg_path):
 
     return out_img_filepath
 
-def process_img(img_path, width_stride, segment_name, category_path, image_path, file_path):
+def process_img(img_path, width_stride, segment_name, category_path, image_path, file_path, current_w):
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED) # Alpha channel read
+    #print(current_w)
 
     # Since all meaningful information is colored in black (or whatever), we only care about the pixels which is not transparent
     bw_img = (img[:,:,3] > 0) # alhpa != 0
@@ -40,12 +42,19 @@ def process_img(img_path, width_stride, segment_name, category_path, image_path,
     tops = []
     bottoms = []
 
-    current_w = 0
+    last_point = current_w
+
     while current_w < width:
         column_arr = bw_img[:,current_w]
         positive_indices = np.where(column_arr) # for each column of pixels
+
+        if (current_w - last_point) > width_stride:
+            break
+
         if len(positive_indices[0]) == 0: # if there is no meaningful pixel, continue
             current_w += width_stride
+            if len(tops) == 0:
+                last_point = current_w
             continue
 
         # if there is meaningful pixel, gather topmost and bottommost pixel
@@ -54,9 +63,12 @@ def process_img(img_path, width_stride, segment_name, category_path, image_path,
 
         # for every width_stride column
         current_w += width_stride
+        last_point = current_w
+
 
     # Connect topmost and bottommost pixels and close the loop(=polygon)
     point_num = len(bottoms)
+
     for i in range(point_num):
         tops.append(bottoms[point_num-i-1])
     if len(tops) == 0:
@@ -84,6 +96,9 @@ def process_img(img_path, width_stride, segment_name, category_path, image_path,
 
     bbox_point = [int(xmin), int(ymin), int(xmax), int(ymax)]
     make_annotation_data(bbox_point, segment_name, category_path, image_path, file_path)
+
+    if (current_w - last_point) > width_stride:
+        process_img(img_path, width_stride, segment_name, category_path, image_path, file_path, current_w)
 
 
 def make_annotation_data(bbox_points, segment_name, category_path, image_path, file_path):
@@ -115,23 +130,27 @@ def make_annotation_data(bbox_points, segment_name, category_path, image_path, f
 
     annotation_data.append([image_id, category_id, xmin, ymin, xmax, ymax, copy.deepcopy(segmentation_data)])
 
+    segmentation_data.clear()
+
     # img name, category key, segmentaion 정보까지 넘겨서 annotation_json_generator에서 annotation 만들기
     # img 상대경로 추적해서 image.json 파일에 있는 file name 하고 비교해서 같으면 id 가져오기
     # category key name 받아와서 같은 name 있는지 category.json 파일에서 찾고 id 가져오기
 
 
-def make_polygon( ):
+def make_polygon():
     segmented_root_path = 'D:/Test_Models/FAAI/segmented_files'
+    #segmented_root_path = 'D:/Test_Models/segmented_files'
     p = Path(segmented_root_path)
     WIDTH_STRIDE = 10
-    dest_path = 'new_folder\\'
+    dest_path = 'ImageDataSet\\'
+    #dest_path = 'new_folder\\'
     category_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\categories.json'
     image_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\images.json'
 
-    for segmented_file_path in p.glob('**/*.svg'):
+    for segmented_file_path in tqdm(p.glob('**/*.svg')):
         # 1) convert svg to image
         out_img_file = convert_svg_to_png(segmented_file_path)
-        # print('@' + segmented_file_path)
+        print(segmented_file_path)
 
         # 2) process image and generate polygon
         first = str(segmented_file_path).split('segmented_files')
@@ -145,19 +164,16 @@ def make_polygon( ):
         segment_names_2 = segment_names_1[1].rsplit(sep='.', maxsplit=1)
         segment_name = segment_names_2[0]
 
-        process_img(out_img_file, WIDTH_STRIDE, segment_name, category_path, image_path, file_path)
-
-        segmentation_data.clear()
+        process_img(out_img_file, WIDTH_STRIDE, segment_name, category_path, image_path, file_path, 0)
 
     annotation_json_generator.write_coco_annotaion(annotation_data)
 
 
 
 if __name__ == '__main__':
-
-
-    segmented_root_path = 'D:/Test_Models/FAAI/segmented_files'
+    '''segmented_root_path = 'D:/Test_Models/FAAI/segmented_files'
     p = Path(segmented_root_path)
 
     for i in p.glob('**/*.svg'):
-        print(i)
+        print(i)'''
+    make_polygon()

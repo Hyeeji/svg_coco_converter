@@ -3,6 +3,7 @@ from src.json_generator.annotation_json_generator.svg_segmentation import segmen
 import segemented_processing
 import svg_segmentation
 import cProfile
+import time
 
 data = {}
 data['annotations'] = []
@@ -26,6 +27,7 @@ def write_coco_annotaion(annotation_data):
                                          #'segmentation_name': segmentation_name,
                                          'bbox': bbox,
                                          'area': area,
+                                         'iscrowd': 0,
                                          'segmentation': [annotation[6]]})
         instance_id += 1
 
@@ -39,7 +41,10 @@ def save_as_json(data):
 
 
 if __name__ == '__main__':
-    segmentation()
+    start = time.time()
+    #segmentation()
     segemented_processing.make_polygon()
+
+    print(time.time() - start)
 
 
