@@ -25,7 +25,7 @@ if __name__ == "__main__":
         #pp1.mkdir(parents=True, exist_ok=True)
         pp2.mkdir(parents=True, exist_ok=True)
 
-    '''with open('../category_json_generator/test_file_name.json', 'r') as f:
+    with open('../category_json_generator/test_file_name.json', 'r') as f:
         test_category_list = json.load(f)
 
     for file_name in test_category_list:
@@ -34,24 +34,6 @@ if __name__ == "__main__":
         dest = test_dir + temp[1]
 
         shutil.copy(file, dest)
-        print(file)'''
-
-
-    '''for i in dir_five:
-        if str(i) != test_dir and str(i) != segmented_dir:
-            li = [str(ii) for ii in i.glob('**/*.svg')]
-            length = len(li)
-            import random
-            if length != 0:
-                files = random.sample(li, 200)
-
-                for file in files:
-                    temp = file.split('FAAI')
-                    dest = test_dir + temp[1]
-                    dest = dest.replace('/', '\\')
-
-                    shutil.copy(file, dest)
-                    print(file)
-                    os.remove(file)'''
+        print(file)
 
 
