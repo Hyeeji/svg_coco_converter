@@ -24,7 +24,6 @@ def write_coco_annotaion(annotation_data):
         data['annotations'].append({'id': instance_id,
                                          'image_id': annotation[0],
                                          'category_id': annotation[1],
-                                         #'segmentation_name': segmentation_name,
                                          'bbox': bbox,
                                          'area': area,
                                          'iscrowd': 0,
@@ -37,7 +36,7 @@ def write_coco_annotaion(annotation_data):
 
 def save_as_json(data):
     with open('../../../test_files/annotations.json', 'w') as json_out:
-        json.dump(data, json_out, indent=4)
+        json.dump(data, json_out)
 
 
 if __name__ == '__main__':

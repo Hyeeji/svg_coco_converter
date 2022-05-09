@@ -11,12 +11,10 @@ from tqdm import tqdm
 from pathlib import Path
 import matplotlib.pyplot as plt
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from common.svg_cleaner import correct_id
 
 segmentation_data = []
 annotation_data = []
 
-global colors
 
 def convert_svg_to_png(svg_path):
     # Convert each sub-SVG into image
@@ -24,7 +22,8 @@ def convert_svg_to_png(svg_path):
     segmented_file_path = svg_path
     out_img_filepath = svg_path.replace('.svg', '.png')
     #print("Writing {0}...".format(out_img_filepath))
-    cairosvg.svg2png(url=segmented_file_path, write_to=segmented_file_path.replace('.svg', '.png'), parent_width=512, parent_height=512)
+    cairosvg.svg2png(url=segmented_file_path, write_to=segmented_file_path.replace('.svg', '.png'), parent_width=512,
+                     parent_height=512)
 
     # TODO: Pyvips dll load 문제 있음...
     # image = pyvips.Image.new_from_file(segmented_file_path, dpi=600)
@@ -32,11 +31,10 @@ def convert_svg_to_png(svg_path):
 
     return out_img_filepath
 
+
 def process_img(img_path, width_stride, segment_name, category_path, image_path, file_path, current_w):
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED) # Alpha channel read
-    #print(current_w)
 
-    # Since all meaningful information is colored in black (or whatever), we only care about the pixels which is not transparent
     bw_img = (img[:,:,3] > 0) # alhpa != 0
 
     width = bw_img.shape[1]
@@ -68,8 +66,6 @@ def process_img(img_path, width_stride, segment_name, category_path, image_path,
         current_w += width_stride
         last_point = current_w
 
-
-    # Connect topmost and bottommost pixels and close the loop(=polygon)
     point_num = len(bottoms)
 
     for i in range(point_num):
@@ -79,8 +75,6 @@ def process_img(img_path, width_stride, segment_name, category_path, image_path,
 
     tops.append(tops[0]) # force closing
 
-
-    # -- Plotting for debug
     x_vals = []
     y_vals = []
 
@@ -125,9 +119,8 @@ def make_annotation_data(bbox_points, segment_name, category_path, image_path, f
             image_id = filename['id']
             break
 
-    category_name = correct_id(segment_name)
     for category in all_category['categories']:
-        if category['name'] == category_name:
+        if category['name'] == segment_name:
             category_id = category['id']
             break
 
@@ -141,16 +134,14 @@ def make_annotation_data(bbox_points, segment_name, category_path, image_path, f
 
 
 def make_polygon():
-    segmented_root_path = 'D:/Test_Models/FAAI/segmented_files'
-    #segmented_root_path = 'D:/Test_Models/segmented_files'
+    segmented_root_path = 'D:/Test_Models/FAAI/test_segmented_files'
     p = Path(segmented_root_path)
-    WIDTH_STRIDE = 10
-    dest_path = 'ImageDataSet\\'
-    #dest_path = 'new_folder\\'
+    WIDTH_STRIDE = 1
+    dest_path = 'ImageDataSet/'
     category_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\categories.json'
     image_path = 'C:\\Users\\hyejiHan\\Documents\\GitHub\\svg_coco_converter\\test_files\\images.json'
 
-    for segmented_file_path in tqdm(p.glob('**/*.svg')):
+    for segmented_file_path in p.glob('**/*.svg'):
         # 1) convert svg to image
         out_img_file = convert_svg_to_png(segmented_file_path)
         print(segmented_file_path)
@@ -159,19 +150,18 @@ def make_polygon():
         first = str(segmented_file_path).split('segmented_files')
 
         second = first[1].rsplit(sep='\\', maxsplit=1)
-        file_name = second[0] + '.png'
+        temp = second[0].replace('\\', '/')
+
+        file_name = temp + '.png'
         file_path = dest_path + file_name
-        file_path = file_path.replace('\\\\', '\\')
+        file_path = file_path.replace('//', '/')
 
         segment_names_1 = second[1].split(sep='_', maxsplit=1)
-        segment_names_2 = segment_names_1[1].rsplit(sep='.', maxsplit=1)
-        segment_name = segment_names_2[0]
+        segment_name = segment_names_1[1].rsplit(sep='.', maxsplit=1)[0]
 
         process_img(out_img_file, WIDTH_STRIDE, segment_name, category_path, image_path, file_path, 0)
 
     annotation_json_generator.write_coco_annotaion(annotation_data)
-
-
 
 if __name__ == '__main__':
     '''segmented_root_path = 'D:/Test_Models/FAAI/segmented_files'

@@ -17,6 +17,6 @@ if __name__ == '__main__':
     data['images'] = images['images']
     data['annotations'] = annotations['annotations']
 
-    with open('../../../test_files/all.json', 'w') as all_json:
-        json.dump(data, all_json, indent=4)
+    with open('../../../test_files/test.json', 'w') as all_json:
+        json.dump(data, all_json)
 

@@ -2,6 +2,7 @@ import os
 from pathlib import WindowsPath
 import sys
 import json
+import time
 #from typing import OrderedDict
 from svg_to_image import svg_convert
 from generate_image import generate_single_image_json
@@ -25,15 +26,15 @@ class image_json_generator:
         next_file_list = os.listdir(cur_path)
 
         for next_file in next_file_list:
-            next_dest_path = dest_path + '\\'            # 복사 경로상에서 다음 경로
-            next_file_path = cur_path + '\\' + next_file # 원본 경로상에서 파일명까지 포함한 다음 경로
+            next_dest_path = dest_path + '/'            # 복사 경로상에서 다음 경로
+            next_file_path = cur_path + '/' + next_file # 원본 경로상에서 파일명까지 포함한 다음 경로
 
             if os.path.isdir(next_file_path):
                 next_dest_path += next_file
                 try:
                     if not os.path.exists(next_dest_path):
                         os.makedirs(next_dest_path)
-                    self.traversal_and_convert(next_file_path, relative_cur_path + '\\' + next_file , next_dest_path)
+                    self.traversal_and_convert(next_file_path, relative_cur_path + '/' + next_file , next_dest_path)
                 except OSError:
                     print ('Error: Creating directory ' + next_dest_path + '.')
 
@@ -44,23 +45,25 @@ class image_json_generator:
                     next_dest_path += new_file_name
                     svg_convert(next_file_path, next_dest_path, self.width, self.height)
                     self.id_counter += 1
-                    self.images_json['images'].append(generate_single_image_json(self.id_counter, self.width, self.height, relative_cur_path + '\\' + new_file_name))
+                    self.images_json['images'].append(generate_single_image_json(self.id_counter, self.width, self.height, relative_cur_path + '/' + new_file_name))
                 else:
                     print(next_file + " is not .svg file.")
             else:
                 continue        
 
     def dump_image_result(self, out_path):
-        with open(out_path + '\\images.json', 'w') as json_file:
+        with open(out_path + '/images.json', 'w') as json_file:
             json.dump(self.images_json, json_file, indent=4)
 
     def generate_image_json(self):
         self.traversal_and_convert(self.origin_path, self.dest_root_folder, self.dest_path)
         self.dump_image_result(self.origin_path)
-        print("Generated " + self.origin_path + "\\image.json successfully.")
+        print("Generated " + self.origin_path + "/image.json successfully.")
 
 if __name__ == "__main__":
     #DATA_ROOT = 'C:\\Users\\tuna1\\Documents\\AIFasion\\'
+
+    start = time.time()
 
     DATA_ROOT = 'D:/Test_Models/FAAI/'
 
@@ -69,3 +72,5 @@ if __name__ == "__main__":
     else:
         generator = image_json_generator(DATA_ROOT, sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
         generator.generate_image_json()
+
+    print(time.time() - start)

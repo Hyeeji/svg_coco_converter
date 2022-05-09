@@ -1,6 +1,9 @@
 # 문자열 필터링 함수
 def correct_id(w):
-        w = w.replace("_x5F", "").replace("_x3", "").replace("__x2A_", "~").replace("_x2A_", "~").replace("__", "_")
+        w = w.replace("_x5F", "").replace("_x3", "").replace("__x2A_", "~").replace("_x2A_", "~").replace("__", "_").\
+            replace("_1_", "").replace("_2_", "").replace("_3_", "").replace("_4_", "").\
+            replace("_5_", "").replace("_6_", "").replace("_7_", "").replace("_8_", "").\
+            replace("_9_", "").replace("_10_", "").replace("_11_", "")
         try:
             if w[-1:] == "_":
                 temp_w = ''
